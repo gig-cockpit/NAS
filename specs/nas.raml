@@ -1,0 +1,61 @@
+#%RAML 1.0
+title: "NAS"
+description: "NAS provision API"
+version: 0.0.1
+mediaType: application/json
+
+securitySchemes:
+  itsyouonline: !include https://raw.githubusercontent.com/gig-cockpit/raml-definitions/master/securityScheme/iyo.raml
+
+resourceTypes:
+  collection: !include https://raw.githubusercontent.com/gig-cockpit/raml-definitions/master/resourceTypes/collection.raml
+  member: !include https://raw.githubusercontent.com/gig-cockpit/raml-definitions/master/resourceTypes/member.raml
+
+securedBy: [itsyouonline]
+
+types:
+  NasCreate:
+    properties:
+      capacity:
+        type: integer
+        description: Capacity of the NAS in GiB
+        format: int64
+
+  Nas:
+    type: NasCreate
+    properties:
+      id:
+        type: string
+        pattern: ^\w+$
+        required: true
+
+/nas:
+  type: collection
+  description: Manage G8 NAS
+  post:
+    description: Create a new NAS server
+    body:
+      type: NasCreate
+    responses:
+      201:
+        description: <<resourcePathName | !singularize>> created
+        body:
+          type: Nas
+  get:
+    responses:
+      200:
+        body:
+          type: Nas
+  /{nasid}:
+    type: member
+    get:
+      description:
+        Get detail view about then NAS
+      responses:
+        200:
+          body:
+            type: Nas
+    put:
+      description: Update capacity of the NAS
+    delete:
+      description: Delete NAS
